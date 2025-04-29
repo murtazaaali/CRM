@@ -13,7 +13,7 @@ const app = express();
 // Connect to MongoDB
 connectDB();
 
-// Middleware
+// Middleware 
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -21,6 +21,10 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/customers', require('./routes/customers'));
+app.use('/api/contacts', require('./routes/contacts'));
+app.use('/api/leads', require('./routes/leads'));
+app.use('/api/deals', require('./routes/deals'));
+
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -28,8 +32,11 @@ app.use((err, req, res, next) => {
     res.status(500).json({ message: 'Something went wrong!' });
 });
 
+ 
+
+
 // Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
-}); 
+});  

@@ -1,3 +1,5 @@
+import axios from "axios";
+
 interface User {
   id: string;
   name: string;
@@ -9,37 +11,45 @@ interface AuthResponse {
   token: string;
 }
 
+const API_URL = `http://localhost:3000`
+
 export const authService = {
   async login(email: string, password: string): Promise<AuthResponse> {
-    // TODO: Replace with actual API call
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          user: {
-            id: '1',
-            name: 'Test User',
-            email: email,
-          },
-          token: 'fake-jwt-token',
-        });
-      }, 1000);
-    });
+
+    
+    const response = await axios.post(`${API_URL}/api/auth/login`, {  email, password });
+    const data = response?.data;
+
+    const user: User = {
+      id: data._id,
+      name: data.name,
+      email: data.email,
+    };
+
+
+  
+    return { user, token: data.token };
+
+   
   },
 
   async signup(name: string, email: string, password: string): Promise<AuthResponse> {
     // TODO: Replace with actual API call
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          user: {
-            id: '1',
-            name,
-            email,
-          },
-          token: 'fake-jwt-token',
-        });
-      }, 1000);
-    });
+
+ 
+    const response = await axios.post(`${API_URL}/api/auth/register`, { name, email, password });
+    const data = response?.data;
+
+    const user: User = {
+      id: data._id,
+      name: data.name,
+      email: data.email,
+    };
+
+
+  
+    return { user, token: data.token };
+ 
   },
 
   logout(): void {

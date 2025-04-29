@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   useReactTable,
   getCoreRowModel,
@@ -9,12 +9,11 @@ import useContactsStore from '../store/contacts';
 import ContactForm from '../components/ContactForm';
 
 interface Contact {
-  id: number;
+  _id: number;
   name: string;
   email: string;
   phone: string;
   company: string;
-  title: string;
   status: 'active' | 'inactive';
 }
 
@@ -37,10 +36,6 @@ const columns = [
     header: 'Company',
     cell: info => info.getValue(),
   }),
-  columnHelper.accessor('title', {
-    header: 'Title',
-    cell: info => info.getValue(),
-  }),
   columnHelper.accessor('status', {
     header: 'Status',
     cell: info => {
@@ -56,32 +51,18 @@ const columns = [
       );
     },
   }),
-  columnHelper.display({
-    id: 'actions',
-    header: 'Actions',
-    cell: ({ row }) => (
-      <div className="flex space-x-2">
-        <button
-          onClick={() => handleEdit(row.original)}
-          className="text-blue-600 hover:text-blue-900"
-        >
-          Edit
-        </button>
-        <button
-          onClick={() => handleDelete(row.original.id)}
-          className="text-red-600 hover:text-red-900"
-        >
-          Delete
-        </button>
-      </div>
-    ),
-  }),
 ];
 
 const Contacts = () => {
-  const { contacts, deleteContact } = useContactsStore();
+  const { contacts, deleteContact, fetchContacts, isFetched } = useContactsStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedContact, setSelectedContact] = useState<Contact | undefined>();
+
+  useEffect(() => {
+    if (!isFetched) {
+      fetchContacts(); 
+    }
+  }, [fetchContacts, isFetched]);
 
   const table = useReactTable({
     data: contacts,
@@ -174,7 +155,7 @@ const Contacts = () => {
                     Edit
                   </button>
                   <button
-                    onClick={() => handleDelete(row.original.id)}
+                    onClick={() => handleDelete(row.original._id)}
                     className="text-red-600 hover:text-red-900"
                   >
                     Delete

@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');  
+const mongoose = require('mongoose');
 
-const customerSchema = new mongoose.Schema({
+const contactSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true
@@ -13,23 +13,13 @@ const customerSchema = new mongoose.Schema({
     phone: {
         type: String
     },
-    address: {
-        street: String,
-        city: String,
-        state: String,
-        zipCode: String,
-        country: String
-    },
     company: {
         type: String
     },
     status: {
         type: String,
-        enum: ['active', 'inactive', 'lead'],
+        enum: ['active', 'inactive'],
         default: 'active'
-    },
-    notes: {
-        type: String
     },
     createdBy: {
         type: mongoose.Schema.Types.ObjectId,
@@ -46,4 +36,4 @@ const customerSchema = new mongoose.Schema({
     }
 });
 
-module.exports = mongoose.model('Customer', customerSchema); 
+module.exports = mongoose.model('contacts', contactSchema); 

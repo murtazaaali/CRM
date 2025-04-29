@@ -1,5 +1,5 @@
-import { ReactNode, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, Outlet, useLocation } from 'react-router-dom';
 import {
   HomeIcon,
   UserGroupIcon,
@@ -15,11 +15,9 @@ import {
   ChevronDownIcon,
 } from '@heroicons/react/24/outline';
 
-interface LayoutProps {
-  children: ReactNode;
-}
 
-const Layout = ({ children }: LayoutProps) => {
+
+const Layout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
 
@@ -112,7 +110,7 @@ const Layout = ({ children }: LayoutProps) => {
 
         {/* Page Content */}
         <main className="flex-1 overflow-y-auto">
-          {children}
+          <Outlet />
         </main>
       </div>
     </div>

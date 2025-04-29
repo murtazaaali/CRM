@@ -10,7 +10,7 @@ interface ContactFormData {
 }
 
 interface ContactFormProps {
-  contact?: ContactFormData & { id: number };
+  contact?: ContactFormData & { _id: number };
   onClose: () => void;
 }
 
@@ -28,7 +28,7 @@ const ContactForm = ({ contact, onClose }: ContactFormProps) => {
 
   const onSubmit = (data: ContactFormData) => {
     if (contact) {
-      updateContact(contact.id, data);
+      updateContact(contact._id, data);
     } else {
       addContact(data);
     }

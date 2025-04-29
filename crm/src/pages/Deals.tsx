@@ -1,9 +1,15 @@
-import { useState } from 'react';
-import { createColumnHelper } from '@tanstack/react-table';
-import { useReactTable, getCoreRowModel, flexRender } from '@tanstack/react-table';
+import { useEffect, useState } from "react";
+import {
+  useReactTable,
+  getCoreRowModel,
+  flexRender,
+  createColumnHelper,
+} from "@tanstack/react-table";
+import useDealsStore from "../store/deal";
+import DealForm from "../components/DealForm";
 
 interface Deal {
-  id: number;
+  _id: number;
   name: string;
   company: string;
   value: number;
@@ -61,32 +67,15 @@ const columns = [
 ];
 
 const Deals = () => {
-  // Mock data - in a real app, this would come from a store or API
-  const [deals, setDeals] = useState<Deal[]>([
-    {
-      id: 1,
-      name: 'Enterprise Software License',
-      company: 'Acme Inc',
-      value: 50000,
-      stage: 'negotiation',
-      probability: 75,
-      expectedCloseDate: '2024-06-30',
-      owner: 'John Doe',
-    },
-    {
-      id: 2,
-      name: 'Cloud Services Contract',
-      company: 'XYZ Corp',
-      value: 25000,
-      stage: 'proposal',
-      probability: 50,
-      expectedCloseDate: '2024-07-15',
-      owner: 'Jane Smith',
-    },
-  ]);
+  const { deals, deleteDeal, fetchDeals, isFetched } = useDealsStore();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedDeal, setSelectedLead] = useState<Deal | undefined>();
 
-  const [showForm, setShowForm] = useState(false);
-  const [selectedDeal, setSelectedDeal] = useState<Deal | undefined>(undefined);
+  useEffect(() => {
+    if (!isFetched) {
+      fetchDeals();
+    }
+  }, [fetchDeals, isFetched]);
 
   const table = useReactTable({
     data: deals,
@@ -94,112 +83,43 @@ const Deals = () => {
     getCoreRowModel: getCoreRowModel(),
   });
 
-  const handleEdit = (deal: Deal) => {
-    setSelectedDeal(deal);
-    setShowForm(true);
+  const handleDelete = (id: number) => {
+    if (window.confirm("Are you sure you want to delete this lead?")) {
+      deleteDeal(id);
+    }
   };
 
-  const handleDelete = (id: number) => {
-    if (window.confirm('Are you sure you want to delete this deal?')) {
-      setDeals(deals.filter(deal => deal.id !== id));
-    }
+  const handleEdit = (contact: Deal) => {
+    setSelectedLead(contact);
+    setIsModalOpen(true);
+  };
+
+  const handleAdd = () => {
+    setSelectedLead(undefined);
+    setIsModalOpen(true);
+  };
+
+  const handleClose = () => {
+    setIsModalOpen(false);
+    setSelectedLead(undefined);
   };
 
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Deals</h1>
-        <button
-          onClick={() => {
-            setSelectedDeal(undefined);
-            setShowForm(true);
-          }}
-          className="btn btn-primary"
-        >
+        <button onClick={handleAdd} className="btn btn-primary">
           Add Deal
         </button>
       </div>
 
-      {showForm && (
+      {isModalOpen && (
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4">
           <div className="bg-white rounded-lg p-6 max-w-2xl w-full">
             <h2 className="text-xl font-semibold mb-4">
-              {selectedDeal ? 'Edit Deal' : 'Add Deal'}
+              {selectedDeal ? "Edit Lead" : "Add Lead"}
             </h2>
-            <form className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Deal Name</label>
-                <input
-                  type="text"
-                  className="input"
-                  defaultValue={selectedDeal?.name}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Company</label>
-                <input
-                  type="text"
-                  className="input"
-                  defaultValue={selectedDeal?.company}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Value</label>
-                <input
-                  type="number"
-                  className="input"
-                  defaultValue={selectedDeal?.value}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Stage</label>
-                <select className="input" defaultValue={selectedDeal?.stage}>
-                  <option value="proposal">Proposal</option>
-                  <option value="negotiation">Negotiation</option>
-                  <option value="contract">Contract</option>
-                  <option value="closed">Closed</option>
-                  <option value="lost">Lost</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Probability</label>
-                <input
-                  type="number"
-                  min="0"
-                  max="100"
-                  className="input"
-                  defaultValue={selectedDeal?.probability}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Expected Close Date</label>
-                <input
-                  type="date"
-                  className="input"
-                  defaultValue={selectedDeal?.expectedCloseDate}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Owner</label>
-                <input
-                  type="text"
-                  className="input"
-                  defaultValue={selectedDeal?.owner}
-                />
-              </div>
-              <div className="flex justify-end space-x-2">
-                <button
-                  type="button"
-                  onClick={() => setShowForm(false)}
-                  className="btn btn-secondary"
-                >
-                  Cancel
-                </button>
-                <button type="submit" className="btn btn-primary">
-                  {selectedDeal ? 'Update' : 'Add'} Deal
-                </button>
-              </div>
-            </form>
+            <DealForm deal={selectedDeal} onClose={handleClose} />
           </div>
         </div>
       )}
@@ -207,9 +127,9 @@ const Deals = () => {
       <div className="bg-white shadow rounded-lg overflow-hidden">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
-            {table.getHeaderGroups().map(headerGroup => (
+            {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
-                {headerGroup.headers.map(header => (
+                {headerGroup.headers.map((header) => (
                   <th
                     key={header.id}
                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
@@ -227,9 +147,9 @@ const Deals = () => {
             ))}
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {table.getRowModel().rows.map(row => (
+            {table.getRowModel().rows.map((row) => (
               <tr key={row.id}>
-                {row.getVisibleCells().map(cell => (
+                {row.getVisibleCells().map((cell) => (
                   <td key={cell.id} className="px-6 py-4 whitespace-nowrap">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
@@ -242,7 +162,7 @@ const Deals = () => {
                     Edit
                   </button>
                   <button
-                    onClick={() => handleDelete(row.original.id)}
+                    onClick={() => handleDelete(row.original._id)}
                     className="text-red-600 hover:text-red-900"
                   >
                     Delete
@@ -257,4 +177,4 @@ const Deals = () => {
   );
 };
 
-export default Deals; 
+export default Deals;
