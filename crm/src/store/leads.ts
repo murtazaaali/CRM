@@ -22,6 +22,8 @@ interface LeadsState {
   deleteLead: (id: number) => void;
 }
 
+const DUMMY_STORAGE_KEY = "dummy_leads";
+
 const useLeadsStore = create<LeadsState>((set, get) => ({
   leads: [],
   isFetched: false,
@@ -32,78 +34,108 @@ const useLeadsStore = create<LeadsState>((set, get) => ({
 
     const token = localStorage.getItem("token");
 
-    try {
-      const response = await axios.get("http://localhost:3000/api/leads", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-      const fetchedLeads = response.data;
-      set({ leads: fetchedLeads, isFetched: true });
-    } catch (err) {
-      console.error("Failed to fetch leads:", err);
+     const isDummy = localStorage.getItem("accounttype") === "dummy";
+
+    if (isDummy) {
+      const stored = localStorage.getItem(DUMMY_STORAGE_KEY);
+      const dummyLeads: Lead[] = stored ? JSON.parse(stored) : [];
+      set({ leads: dummyLeads, isFetched: true });
+    } else {
+      try {
+        const response = await axios.get("http://localhost:3000/api/leads", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+        const fetchedLeads = response.data;
+        set({ leads: fetchedLeads, isFetched: true });
+      } catch (err) {
+        console.error("Failed to fetch leads:", err);
+      }
     }
   },
 
   addLead: async (lead) => {
     const token = localStorage.getItem("token");
-    try {
-      const response = await axios.post(
-        "http://localhost:3000/api/leads",
-        lead,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+    const isDummy = localStorage.getItem("accounttype") === "dummy";
+    if (isDummy) {
+      const state = get();
+      const newId = Date.now();
+      const newLead: Lead = { _id: newId, ...lead };
+      const updated = [...state.leads, newLead];
+      localStorage.setItem(DUMMY_STORAGE_KEY, JSON.stringify(updated));
+      set({ leads: updated });
+    } else {
+      try {
+        const response = await axios.post(
+          "http://localhost:3000/api/leads",
+          lead,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
-      const newLead = response.data;
+        const newLead = response.data;
 
-      set((state) => ({
-        leads: [...state.leads, newLead],
-      }));
-
-    } catch (err) {
-      console.error("Failed to add lead:", err);
+        set((state) => ({
+          leads: [...state.leads, newLead],
+        }));
+      } catch (err) {
+        console.error("Failed to add lead:", err);
+      }
     }
   },
 
   updateLead: async (id, lead) => {
     const token = localStorage.getItem("token");
+    const isDummy = localStorage.getItem("accounttype") === "dummy";
+    if (isDummy) {
+      const state = get();
+      const updatedLeads = state.leads.map((c) =>
+        c._id === id ? { ...c, ...lead } : c
+      );
+      localStorage.setItem(DUMMY_STORAGE_KEY, JSON.stringify(updatedLeads));
+      set({ leads: updatedLeads });
+    } else {
+      try {
+        await axios.put(`http://localhost:3000/api/leads/${id}`, lead, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-    try {
-      await axios.put(`http://localhost:3000/api/leads/${id}`, lead, {
+        set((state) => ({
+          leads: state.leads.map((l) => (l._id === id ? { ...l, ...lead } : l)),
+        }));
+      } catch (err) {
+        console.error("Failed to update lead:", err);
+      }
+    }
+  },
+
+  deleteLead: async (id) => {
+    const token = localStorage.getItem("token");
+     const isDummy = localStorage.getItem("accounttype") === "dummy";
+    if (isDummy) {
+      const state = get();
+      const updated = state.leads.filter((c) => c._id !== id);
+      localStorage.setItem(DUMMY_STORAGE_KEY, JSON.stringify(updated));
+      set({ leads: updated });
+    } else {
+      await axios.delete(`http://localhost:3000/api/leads/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
       set((state) => ({
-        leads: state.leads.map((l) =>
-          l._id === id ? { ...l, ...lead } : l
-        ),
-      }))
-     
-    } catch (err) {
-      console.error("Failed to update lead:", err);
+        leads: state.leads.filter((contact) => contact._id !== id),
+      }));
     }
-  },
-
-  deleteLead: async (id) => {
-    const token = localStorage.getItem("token");
-
-    await axios.delete(`http://localhost:3000/api/leads/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    set((state) => ({
-      leads: state.leads.filter((contact) => contact._id !== id),
-    }));
   },
 }));
 

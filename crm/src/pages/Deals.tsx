@@ -117,7 +117,7 @@ const Deals = () => {
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4">
           <div className="bg-white rounded-lg p-6 max-w-2xl w-full">
             <h2 className="text-xl font-semibold mb-4">
-              {selectedDeal ? "Edit Lead" : "Add Lead"}
+              {selectedDeal ? "Edit Deal" : "Add Deal"}
             </h2>
             <DealForm deal={selectedDeal} onClose={handleClose} />
           </div>

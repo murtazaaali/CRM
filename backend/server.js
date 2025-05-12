@@ -24,6 +24,14 @@ app.use('/api/customers', require('./routes/customers'));
 app.use('/api/contacts', require('./routes/contacts'));
 app.use('/api/leads', require('./routes/leads'));
 app.use('/api/deals', require('./routes/deals'));
+app.use('/api/tasks', require('./routes/tasks'));
+app.use('/api/employees', require('./routes/employees'));
+app.use('/api/activities', require('./routes/activities'));
+
+
+app.use('/api/categories', require('./routes/categories'));
+app.use('/api/products', require('./routes/products'));
+
 
 
 // Error handling middleware

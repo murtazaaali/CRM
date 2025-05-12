@@ -10,10 +10,13 @@ import {
   ChartBarIcon,
   FolderIcon,
   Cog6ToothIcon,
-  BellIcon,
-  MagnifyingGlassIcon,
-  ChevronDownIcon,
+  // BellIcon,
+  // MagnifyingGlassIcon,
+  // ChevronDownIcon,
+  IdentificationIcon,
+  Squares2X2Icon
 } from '@heroicons/react/24/outline';
+import Header from './Header';
 
 
 
@@ -27,6 +30,8 @@ const Layout = () => {
     { path: '/leads', label: 'Leads', icon: UserIcon },
     { path: '/deals', label: 'Deals', icon: CurrencyDollarIcon },
     { path: '/tasks', label: 'Tasks', icon: ClipboardDocumentListIcon },
+    { path: '/employees', label: 'Employees', icon: IdentificationIcon },
+    { path: '/categories', label: 'Categories', icon: Squares2X2Icon },
     { path: '/calendar', label: 'Calendar', icon: CalendarIcon },
     { path: '/reports', label: 'Reports', icon: ChartBarIcon },
     { path: '/projects', label: 'Projects', icon: FolderIcon },
@@ -74,39 +79,8 @@ const Layout = () => {
       {/* Main Content */}
       <div className="flex flex-1 flex-col lg:pl-64">
         {/* Header */}
-        <header className="sticky top-0 z-40 bg-white shadow-sm">
-          <div className="flex h-16 items-center justify-between px-4">
-            <button
-              onClick={() => setSidebarOpen(true)}
-              className="lg:hidden"
-            >
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
-
-            <div className="flex flex-1 items-center justify-end space-x-4">
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Search..."
-                  className="w-64 rounded-md border-gray-300 pl-10 pr-4 py-2 text-sm focus:border-primary-500 focus:ring-primary-500"
-                />
-                <MagnifyingGlassIcon className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-              </div>
-              <button className="relative rounded-full bg-gray-100 p-2 text-gray-600 hover:bg-gray-200">
-                <BellIcon className="h-6 w-6" />
-                <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 text-xs text-white">3</span>
-              </button>
-              <div className="relative">
-                <button className="flex items-center space-x-2 rounded-full bg-gray-100 p-2 text-gray-600 hover:bg-gray-200">
-                  <div className="h-8 w-8 rounded-full bg-primary-600"></div>
-                  <ChevronDownIcon className="h-4 w-4" />
-                </button>
-              </div>
-            </div>
-          </div>
-        </header>
+        
+        <Header setSidebarOpen={setSidebarOpen} />
 
         {/* Page Content */}
         <main className="flex-1 overflow-y-auto">

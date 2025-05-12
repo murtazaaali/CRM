@@ -1,7 +1,7 @@
 import axios from "axios";
 
 interface User {
-  id: string;
+  // id: string;
   name: string;
   email: string;
 }
@@ -21,7 +21,7 @@ export const authService = {
     const data = response?.data;
 
     const user: User = {
-      id: data._id,
+      // id: data._id,
       name: data.name,
       email: data.email,
     };
@@ -41,7 +41,7 @@ export const authService = {
     const data = response?.data;
 
     const user: User = {
-      id: data._id,
+      // id: data._id,
       name: data.name,
       email: data.email,
     };

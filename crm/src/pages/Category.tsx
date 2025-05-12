@@ -5,94 +5,83 @@ import {
   flexRender,
   createColumnHelper,
 } from "@tanstack/react-table";
-import useEmployeesStore from "../store/employee";
-import EmployeeForm from "../components/EmployeeForm";
+import useCategoriesStore from "../store/categories";
+import CategoryForm from "../components/CategoryForm";
 
-interface Employee {
-  _id: number;
+interface Category {
+   _id: number;
   name: string;
-  department: string;
-  position: string;
-  hireDate: string;
-  email : string;
-  ID : string;
+  description: string;
+  parentCategory: string;
+  isActive: boolean;
 }
 
-const columnHelper = createColumnHelper<Employee>();
+const columnHelper = createColumnHelper<Category>();
 
 const columns = [
-  columnHelper.accessor('ID', {
-    header: 'Employee ID',
-    cell: info => info.getValue(),
-  }),
   columnHelper.accessor('name', {
-    header: 'Name',
+    header: 'Category Name',
     cell: info => info.getValue(),
   }),
-  columnHelper.accessor('email', {
-    header: 'Email',
+  columnHelper.accessor('description', {
+    header: 'Description',
     cell: info => info.getValue(),
   }),
-  columnHelper.accessor('department', {
-    header: 'Department',
-    cell: info => info.getValue(),
+  // columnHelper.accessor('parentCategory', {
+  //   header: 'Parent Category',
+  //   cell: info => info.getValue(), 
+  // }),
+  columnHelper.accessor('isActive', {
+    header: 'Status',
+    cell: info => info.getValue() ? "Active" : "Inactive",
   }),
-  columnHelper.accessor('position', {
-    header: 'Position',
-    cell: info => info.getValue(),
-  }),
-  columnHelper.accessor('hireDate', {
-    header: 'Hire Date',
-    cell: info => new Date(info.getValue()).toLocaleDateString(),
-  }),
-  
 ];
 
 
-const Employees = () => {
-  const { employees, deleteEmployee, fetchEmployees, isFetched } = useEmployeesStore();
+const Categories = () => {
+  const { categories, deleteCategory, fetchCategories, isFetched } = useCategoriesStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedEmployee, setEmployeeTask] = useState<Employee | undefined>();
+  const [selectedCategory, setSelectedCategory] = useState<Category | undefined>();
 
   useEffect(() => {
     if (!isFetched) {
-      fetchEmployees();
+      fetchCategories();
     }
-  }, [fetchEmployees, isFetched]);
+  }, [fetchCategories, isFetched]);
 
   const table = useReactTable({
-    data: employees,
+    data: categories,
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
 
   const handleDelete = (id: number) => {
-    if (window.confirm("Are you sure you want to delete this task?")) {
-      deleteEmployee(id);
+    if (window.confirm("Are you sure you want to delete this lead?")) {
+      deleteCategory(id);
     }
   };
 
-  const handleEdit = (employee: Employee) => {
-    setEmployeeTask(employee);
+  const handleEdit = (category: Category) => {
+    setSelectedCategory(category);
     setIsModalOpen(true);
   };
 
   const handleAdd = () => {
-    setEmployeeTask(undefined);
+    setSelectedCategory(undefined);
     setIsModalOpen(true);
   };
 
   const handleClose = () => {
     setIsModalOpen(false);
-    setEmployeeTask(undefined);
+    setSelectedCategory(undefined);
   };
 
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Employees</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Deals</h1>
         <button onClick={handleAdd} className="btn btn-primary">
-          Add Employee
+          Add Category
         </button>
       </div>
 
@@ -100,9 +89,9 @@ const Employees = () => {
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4">
           <div className="bg-white rounded-lg p-6 max-w-2xl w-full">
             <h2 className="text-xl font-semibold mb-4">
-              {selectedEmployee ? "Edit Employee" : "Add Employee"}
+              {selectedCategory ? "Edit Category" : "Add Category"}
             </h2>
-            <EmployeeForm employee={selectedEmployee} onClose={handleClose} />
+            <CategoryForm category={selectedCategory} onClose={handleClose} />
           </div>
         </div>
       )}
@@ -160,4 +149,4 @@ const Employees = () => {
   );
 };
 
-export default Employees;
+export default Categories;

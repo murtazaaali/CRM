@@ -1,66 +1,63 @@
 const express = require("express");
 const router = express.Router();
 const { protect } = require("../middleware/auth");
-const Lead = require("../models/Lead");
+const Task = require("../models/Task");
 
-// Get all leads
+// Get all tasks
 router.get("/", protect, async (req, res) => {
   try {
-    const leads = await Lead.find();
-    res.json(leads);
+    const tasks = await Task.find();
+    res.json(tasks);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
 
-// Create new lead
+// Create new task
 router.post("/", protect, async (req, res) => {
   try {
-    const lead = new Lead({
+    const task = new Task({
       ...req.body,
       createdBy: req.user.id,
     });
 
-    const newLead = await lead.save();
-
-    
-
-    res.status(201).json(newLead);
+    const newTask = await task.save();
+    res.status(201).json(newTask);
   } catch (error) {
     console.log(error.message);
     res.status(400).json({ message: error.message });
   }
 });
 
-// Update lead
+// Update task
 router.put("/:id", protect, async (req, res) => {
   try {
-    const lead = await Lead.findById(req.params.id);
-    if (!lead) {
-      return res.status(404).json({ message: "Lead not found" });
+    const task = await Task.findById(req.params.id);
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
     }
 
-    Object.assign(lead, req.body);
-    lead.updatedAt = Date.now();
-    const updatedLead = await lead.save();
-    res.json(updatedLead);
+    Object.assign(task, req.body);
+    task.updatedAt = Date.now();
+    const updatedTask = await task.save();
+    res.json(updatedTask);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
 });
 
-// Delete lead
+// Delete deal
 router.delete("/:id", protect, async (req, res) => {
   try {
-    const lead = await Lead.findById(req.params.id);
+    const task = await Task.findById(req.params.id);
 
-    if (!lead) {
-      return res.status(404).json({ message: "Lead not found" });
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
     }
 
-    await lead.deleteOne();
+    await task.deleteOne();
 
-    res.json({ message: "Lead deleted" });
+    res.json({ message: "Task deleted" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

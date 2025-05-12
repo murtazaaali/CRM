@@ -36,7 +36,8 @@ const ContactForm = ({ contact, onClose }: ContactFormProps) => {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <div className="grid grid-cols-2 gap-4">
       <div>
         <label className="block text-sm font-medium text-gray-700">Name</label>
         <input
@@ -105,16 +106,18 @@ const ContactForm = ({ contact, onClose }: ContactFormProps) => {
         )}
       </div>
 
+    
+
+     
+       
+      </div>
+
       <div className="flex justify-end space-x-2">
-        <button
-          type="button"
-          onClick={onClose}
-          className="btn btn-secondary"
-        >
+        <button type="button" onClick={onClose} className="btn btn-secondary">
           Cancel
         </button>
         <button type="submit" className="btn btn-primary">
-          {contact ? 'Update' : 'Add'} Contact
+          {contact ? "Update" : "Add"} Contact
         </button>
       </div>
     </form>

@@ -1,11 +1,15 @@
-import { useState } from 'react';
-import { createColumnHelper } from '@tanstack/react-table';
-import { useReactTable, getCoreRowModel, flexRender } from '@tanstack/react-table';
-import useTasksStore from '../store/tasks';
-import TaskForm from '../components/TaskForm';
+import { useEffect, useState } from "react";
+import {
+  useReactTable,
+  getCoreRowModel,
+  flexRender,
+  createColumnHelper,
+} from "@tanstack/react-table";
+import useTasksStore from "../store/tasks";
+import TaskForm from "../components/TaskForm";
 
 interface Task {
-  id: number;
+  _id: number;
   title: string;
   description: string;
   dueDate: string;
@@ -67,10 +71,17 @@ const columns = [
   }),
 ];
 
+
 const Tasks = () => {
-  const { tasks, deleteTask } = useTasksStore();
-  const [showForm, setShowForm] = useState(false);
-  const [selectedTask, setSelectedTask] = useState<Task | undefined>(undefined);
+  const { tasks, deleteTask, fetchTasks, isFetched } = useTasksStore();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<Task | undefined>();
+
+  useEffect(() => {
+    if (!isFetched) {
+      fetchTasks();
+    }
+  }, [fetchTasks, isFetched]);
 
   const table = useReactTable({
     data: tasks,
@@ -78,42 +89,43 @@ const Tasks = () => {
     getCoreRowModel: getCoreRowModel(),
   });
 
-  const handleEdit = (task: Task) => {
-    setSelectedTask(task);
-    setShowForm(true);
-  };
-
   const handleDelete = (id: number) => {
-    if (window.confirm('Are you sure you want to delete this task?')) {
+    if (window.confirm("Are you sure you want to delete this task?")) {
       deleteTask(id);
     }
+  };
+
+  const handleEdit = (contact: Task) => {
+    setSelectedTask(contact);
+    setIsModalOpen(true);
+  };
+
+  const handleAdd = () => {
+    setSelectedTask(undefined);
+    setIsModalOpen(true);
+  };
+
+  const handleClose = () => {
+    setIsModalOpen(false);
+    setSelectedTask(undefined);
   };
 
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Tasks</h1>
-        <button
-          onClick={() => {
-            setSelectedTask(undefined);
-            setShowForm(true);
-          }}
-          className="btn btn-primary"
-        >
+        <button onClick={handleAdd} className="btn btn-primary">
           Add Task
         </button>
       </div>
 
-      {showForm && (
+      {isModalOpen && (
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4">
           <div className="bg-white rounded-lg p-6 max-w-2xl w-full">
-            <TaskForm
-              task={selectedTask}
-              onClose={() => {
-                setShowForm(false);
-                setSelectedTask(undefined);
-              }}
-            />
+            <h2 className="text-xl font-semibold mb-4">
+              {selectedTask ? "Edit Task" : "Add Task"}
+            </h2>
+            <TaskForm task={selectedTask} onClose={handleClose} />
           </div>
         </div>
       )}
@@ -121,9 +133,9 @@ const Tasks = () => {
       <div className="bg-white shadow rounded-lg overflow-hidden">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
-            {table.getHeaderGroups().map(headerGroup => (
+            {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
-                {headerGroup.headers.map(header => (
+                {headerGroup.headers.map((header) => (
                   <th
                     key={header.id}
                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
@@ -141,9 +153,9 @@ const Tasks = () => {
             ))}
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {table.getRowModel().rows.map(row => (
+            {table.getRowModel().rows.map((row) => (
               <tr key={row.id}>
-                {row.getVisibleCells().map(cell => (
+                {row.getVisibleCells().map((cell) => (
                   <td key={cell.id} className="px-6 py-4 whitespace-nowrap">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
@@ -156,7 +168,7 @@ const Tasks = () => {
                     Edit
                   </button>
                   <button
-                    onClick={() => handleDelete(row.original.id)}
+                    onClick={() => handleDelete(row.original._id)}
                     className="text-red-600 hover:text-red-900"
                   >
                     Delete
@@ -171,4 +183,4 @@ const Tasks = () => {
   );
 };
 
-export default Tasks; 
+export default Tasks;
